@@ -37,7 +37,7 @@ import CloseIcon from "@material-ui/icons/Close";
 import PlayArrowIcon from '@material-ui/icons/PlayArrow';
 import FullscreenIcon from '@material-ui/icons/Fullscreen';
 import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
-import { updateProgress } from "../lib/store";
+import { actionTypes, updateProgress } from "../lib/store";
 import TableSortLabel from "@material-ui/core/TableSortLabel";
 import dataFetch from "../lib/data-fetch";
 import { CircularProgress } from "@material-ui/core";
@@ -49,6 +49,7 @@ import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import URLUploader from "./URLUploader";
 import { createPatternFromConfig, createWorkloadTraitSets, getPatternServiceName } from "./MesheryMeshInterface/helpers";
 import LazyPatternServiceForm from "./MesheryMeshInterface/LazyPatternServiceForm";
+import fileOperations from "../utils/mesheryConfiguration.enum"
 
 const styles = (theme) => ({
   grid : {
@@ -170,7 +171,7 @@ function YAMLEditor({ pattern, onClose, onSubmit }) {
           <IconButton
             aria-label="Update"
             color="primary"
-            onClick={() => onSubmit(yaml, pattern.id, pattern.name, "update")}
+            onClick={() => onSubmit(yaml, pattern.id, pattern.name, fileOperations.UPDATE)}
           >
             <SaveIcon />
           </IconButton>
@@ -179,7 +180,7 @@ function YAMLEditor({ pattern, onClose, onSubmit }) {
           <IconButton
             aria-label="Delete"
             color="primary"
-            onClick={() => onSubmit(yaml, pattern.id, pattern.name, "delete")}
+            onClick={() => onSubmit(yaml, pattern.id, pattern.name,)}
           >
             <DeleteIcon />
           </IconButton>
@@ -350,7 +351,7 @@ function MesheryPatterns({
 
   function handleSubmit(data, id, name, type) {
     updateProgress({ showProgress : true })
-    if (type === "delete") {
+    if (type === fileOperations.DELETE) {
       dataFetch(
         `/api/pattern/${id}`,
         {
@@ -367,7 +368,7 @@ function MesheryPatterns({
       );
     }
 
-    if (type === "update") {
+    if (type === fileOperations.UPDATE) {
       dataFetch(
         `/api/pattern`,
         {
@@ -384,12 +385,12 @@ function MesheryPatterns({
       );
     }
 
-    if (type === "upload" || type=== "urlupload") {
+    if (type === fileOperations.FILE_UPLOAD || type=== fileOperations.URL_UPLOAD) {
       let body = { save : true }
-      if (type === "upload") {
-        body = JSON.stringify({  pattern_data : { pattern_data : data }, ...body })
+      if (type === fileOperations.FILE_UPLOAD) {
+        body = JSON.stringify({  pattern_data : { pattern_file : data }, ...body })
       }
-      if (type === "urlupload") {
+      if (type === fileOperations.URL_UPLOAD) {
         body = JSON.stringify({ url : data, ...body })
       }
       dataFetch(
@@ -421,14 +422,14 @@ function MesheryPatterns({
         event.target.result,
         "",
         file?.name || "meshery_" + Math.floor(Math.random() * 100),
-        "urlupload",
+        fileOperations.URL_UPLOAD,
       );
     });
     reader.readAsText(file);
   }
 
   function urlUploadHandler(link) {
-    handleSubmit(link, "", "meshery_" + Math.floor(Math.random() * 100), "urlupload");
+    handleSubmit(link, "", "meshery_" + Math.floor(Math.random() * 100), fileOperations.URL_UPLOAD);
     // console.log(link, "valid");
   }
   const columns = [
@@ -879,13 +880,13 @@ function CodeEditor({ yaml, handleSubmitFinalPattern, saveCodeEditorChanges, pat
             }}
             onBlur={(a) => saveCodeEditorChanges(a)}
           />
-          <CustomButton title="Save Pattern" onClick={() => handleSubmitFinalPattern(yaml, "", `meshery_${Math.floor(Math.random() * 100)}`, "upload")} />
+          <CustomButton title="Save Pattern" onClick={() => handleSubmitFinalPattern(yaml, "", `meshery_${Math.floor(Math.random() * 100)}`, fileOperations.FILE_UPLOAD)} />
           <CardActions style={{ justifyContent : "flex-end" }}>
             <Tooltip title="Update Pattern">
               <IconButton
                 aria-label="Update"
                 color="primary"
-                onClick={() => handleSubmitFinalPattern(yaml, pattern.id, pattern.name, "update")}
+                onClick={() => handleSubmitFinalPattern(yaml, pattern.id, pattern.name, fileOperations.UPDATE)}
               >
                 <SaveIcon />
               </IconButton>
@@ -894,7 +895,7 @@ function CodeEditor({ yaml, handleSubmitFinalPattern, saveCodeEditorChanges, pat
               <IconButton
                 aria-label="Delete"
                 color="primary"
-                onClick={() => handleSubmitFinalPattern(yaml, pattern.id, pattern.name, "delete")}
+                onClick={() => handleSubmitFinalPattern(yaml, pattern.id, pattern.name, fileOperations.DELETE)}
               >
                 <DeleteIcon />
               </IconButton>
