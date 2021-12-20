@@ -1,16 +1,19 @@
 // @ts-check
 import { AppBar, Button, makeStyles, Tab, Tabs, Typography } from "@material-ui/core";
 import React from "react";
+import useStateCB from "../../utils/hooks/useStateCB";
 import { pSBCr } from "../../utils/lightenOrDarkenColor";
 import { getMeshProperties } from "../../utils/nameMapper";
+import { createPatternFromConfig, getPatternAttributeName } from "./helpers";
+import PatternService from "./PatternService";
 import PatternServiceFormCore from "./PatternServiceFormCore";
 
 const useStyles = makeStyles(() => ({
   appBar : {
     // @ts-ignore
-    boxShadow : ({ color }) =>  `0px 2px 4px -1px ${pSBCr(color, -30)}`,
+    boxShadow : ({ color }) => `0px 2px 4px -1px ${pSBCr(color, -30)}`,
     // @ts-ignore
-    background : ({ color }) => `linear-gradient(115deg, ${pSBCr( color, -30)} 0%, ${color} 100%)`,
+    background : ({ color }) => `linear-gradient(115deg, ${pSBCr(color, -30)} 0%, ${color} 100%)`,
     position : "sticky",
   },
   tabPanel : {
@@ -30,7 +33,7 @@ function RJSFButton({ handler, text, ...restParams }) {
   );
 }
 
-function RJSFFormChildComponent({ onSubmit, onDelete }){
+function RJSFFormChildComponent({ onSubmit, onDelete }) {
   return (
     <>
       <RJSFButton handler={onSubmit} text="Submit" />
@@ -56,57 +59,87 @@ function RJSFFormChildComponent({ onSubmit, onDelete }){
  * }} props
  * @returns
  */
-function PatternServiceForm({ formData, schemaSet, onSubmit, onDelete, reference, namespace, onSettingsChange, onTraitsChange, scroll=false }) {
+function PatternServiceForm({ formData, schemaSet, onSubmit, onDelete, reference, namespace, onSettingsChange, onTraitsChange, scroll = false }) {
   const [tab, setTab] = React.useState(0);
   const classes = useStyles({ color : getMeshProperties(getMeshName(schemaSet))?.color });
+
+  const [settings, setSettings, getSettingsRefValue] = useStateCB(formData && !!formData.settings ? formData.settings : {}, onSettingsChange);
+  const [traits, setTraits, getTraitsRefValue] = useStateCB(formData && !!formData.traits ? formData.traits : {}, onTraitsChange);
+
+  const submitHandler = (val) => {
+    onSubmit?.(createPatternFromConfig({ [getPatternAttributeName(schemaSet.workload)] : val }, namespace))
+  };
+
+  const deleteHandler = (val) => {
+    onDelete?.(createPatternFromConfig({ [getPatternAttributeName(schemaSet.workload)] : val }, namespace), true)
+  };
+
+  if (reference) {
+    if (reference.current == null) reference.current = {}
+
+    reference.current.submit = (cb) => {
+      submitHandler(cb(getSettingsRefValue(), getTraitsRefValue()))
+    }
+    reference.current.getSettings = () => getSettingsRefValue()
+    reference.current.getTraits = () => getTraitsRefValue()
+  }
+
+  const renderTraits = () => !!schemaSet.traits?.length;
+
 
   const handleTabChange = (_, newValue) => {
     setTab(newValue);
   };
-  const renderTraits = () => !!schemaSet.traits?.length;
+
+
+  if (schemaSet.type === "addon") {
+    return (
+      <PatternService
+        formData={settings}
+        type="workload"
+        jsonSchema={schemaSet.workload}
+        onChange={setSettings}
+        onSubmit={() => submitHandler({ settings : getSettingsRefValue() })}
+        onDelete={() => deleteHandler({ settings : getSettingsRefValue() })}
+      />
+    );
+  }
 
   return (
-    <PatternServiceFormCore
-      formData={formData}
-      schemaSet={schemaSet}
-      onSubmit={onSubmit}
-      onDelete={onDelete}
-      reference={reference}
-      namespace={namespace}
-      onSettingsChange={onSettingsChange}
-      onTraitsChange={onTraitsChange}
-      scroll={scroll}
-    >
-      {(SettingsForm, TraitsForm) => {
-
-        // For rendering addons without tabs
-        if (schemaSet?.type === "addon") {
-          return <SettingsForm />
-        }
-
-        // for rendering normal rjsf forms
-        return (
-          <div className={classes.formWrapper}>
-            <AppBar className={classes.appBar}>
-              <Tabs value={tab} onChange={handleTabChange} aria-label="Pattern Service" >
-                <Tab label="Settings" {...a11yProps(0)} />
-                {
-                  renderTraits()
-                    ? <Tab label="Traits" {...a11yProps(1)} />
-                    : null
-                }
-              </Tabs>
-            </AppBar>
-            <TabPanel value={tab} index={0} className={classes.tabPanel}>
-              <SettingsForm RJSFFormChildComponent={RJSFFormChildComponent}  />
-            </TabPanel>
-            <TabPanel value={tab} index={0} className={classes.tabPanel}>
-              <TraitsForm />
-            </TabPanel>
-          </div>
-        )
-      }}
-    </PatternServiceFormCore>
+    <div className={classes.formWrapper}>
+      <AppBar className={classes.appBar}>
+        <Tabs value={tab} onChange={handleTabChange} aria-label="Pattern Service" >
+          <Tab label="Settings" {...a11yProps(0)} />
+          {
+            renderTraits()
+              ? <Tab label="Traits" {...a11yProps(1)} />
+              : null
+          }
+        </Tabs>
+      </AppBar>
+      <TabPanel value={tab} index={0} className={classes.tabPanel}>
+        <PatternService
+          type="workload"
+          formData={settings}
+          jsonSchema={schemaSet.workload}
+          onChange={setSettings}
+          onSubmit={() => submitHandler({ settings : getSettingsRefValue(), traits })}
+          onDelete={() => deleteHandler({ settings : getSettingsRefValue(), traits })}
+        />
+      </TabPanel>
+      {renderTraits() ? (
+        <TabPanel value={tab} index={1} style={{ marginTop : "1.1rem" }}>
+          {schemaSet.traits?.map((trait) => (
+            <PatternService
+              formData={traits[getPatternAttributeName(trait)]}
+              type="trait"
+              jsonSchema={trait}
+              onChange={(val) => setTraits({ ...traits, [getPatternAttributeName(trait)] : val })}
+            />
+          ))}
+        </TabPanel>
+      ) : null}
+    </div>
   )
 }
 

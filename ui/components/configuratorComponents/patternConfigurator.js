@@ -510,13 +510,14 @@ function PatternConfiguratorComponent({ pattern, onSubmit, show : setSelectedPat
                             Configure Addons
                           </Typography>
                         </AccordionSummary>
-                        <AccordionDetails>
+                        <AccordionDetails style={{ flexDirection : "column" }}>
                           {selectedVersionMesh && selectedVersionMesh?.[selectedVersion]
                             ?.filter((s) => s.type === "addon")
                             .sort((a, b) => (getPatternServiceName(a.workload) < getPatternServiceName(b.workload) ? -1 : 1))
                             .map((s, i) => (
                               <Grid item key={`svc-form-addons-${i}`}>
                                 <LazyPatternServiceForm
+                                  key={`${i}xi`}
                                   formData={deployServiceConfig[s.workload?.title]}
                                   onSettingsChange={handleSettingsChange(s.workload)}
                                   schemaSet={s}
