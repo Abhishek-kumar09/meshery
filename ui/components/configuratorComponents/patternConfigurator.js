@@ -23,44 +23,44 @@ import NameToIcon from "./NameToIcon";
 import CustomBreadCrumb from "./CustomBreadCrumb";
 
 const useStyles = makeStyles((theme) => ({
-  backButton : {
-    marginRight : theme.spacing(2),
+  backButton: {
+    marginRight: theme.spacing(2),
   },
-  appBar : {
-    marginBottom : "16px",
-    backgroundColor : "#fff",
-    borderRadius : "8px"
+  appBar: {
+    marginBottom: "16px",
+    backgroundColor: "#fff",
+    borderRadius: "8px"
   },
-  yamlDialogTitle : {
-    display : "flex",
-    alignItems : "center"
+  yamlDialogTitle: {
+    display: "flex",
+    alignItems: "center"
   },
-  yamlDialogTitleText : {
-    flexGrow : 1
+  yamlDialogTitleText: {
+    flexGrow: 1
   },
-  fullScreenCodeMirror : {
-    height : '100%',
-    '& .CodeMirror' : {
-      minHeight : "300px",
-      height : '100%',
+  fullScreenCodeMirror: {
+    height: '100%',
+    '& .CodeMirror': {
+      minHeight: "300px",
+      height: '100%',
     }
   },
-  formCtrl : {
-    width : "60px",
-    minWidth : "60px",
-    maxWidth : "60px",
-    marginRight : 8,
+  formCtrl: {
+    width: "60px",
+    minWidth: "60px",
+    maxWidth: "60px",
+    marginRight: 8,
   },
-  autoComplete : {
-    width : "120px",
-    minWidth : "120px",
-    maxWidth : 120,
+  autoComplete: {
+    width: "120px",
+    minWidth: "120px",
+    maxWidth: 120,
   },
-  autoComplete2 : {
-    width : 250,
-    marginLeft : 16,
-    marginRight : "auto",
-    padding : 0,
+  autoComplete2: {
+    width: 250,
+    marginLeft: 16,
+    marginRight: "auto",
+    padding: 0,
     // "& .MuiAutocomplete-inputRoot" : {
     //   padding : 0
     // },
@@ -68,26 +68,26 @@ const useStyles = makeStyles((theme) => ({
 
     // }
   },
-  btngroup : {
-    marginLeft : "auto",
-    overflowX : "auto",
-    overflowY : "hidden"
+  btngroup: {
+    marginLeft: "auto",
+    overflowX: "auto",
+    overflowY: "hidden"
   },
-  paper : {
-    backgroundColor : "#fcfcfc",
-    padding : 8,
-    height : "100%",
+  paper: {
+    backgroundColor: "#fcfcfc",
+    padding: 8,
+    height: "100%",
   },
-  wrapper : {
-    width : '100%'
+  wrapper: {
+    width: '100%'
   },
-  heading : {
-    fontSize : theme.typography.pxToRem(15),
-    fontWeight : theme.typography.fontWeightRegular,
+  heading: {
+    fontSize: theme.typography.pxToRem(15),
+    fontWeight: theme.typography.fontWeightRegular,
   },
 }));
 
-function PatternConfiguratorComponent({ pattern, onSubmit, show : setSelectedPattern }) {
+function PatternConfiguratorComponent({ pattern, onSubmit, show: setSelectedPattern }) {
   const { workloadTraitSet, meshWorkloads } = useContext(SchemaContext);
   const [workloadTraitsSet, setWorkloadTraitsSet] = useState(workloadTraitSet);
   const [deployServiceConfig, setDeployServiceConfig] = useState(getPatternJson());
@@ -157,6 +157,15 @@ function PatternConfiguratorComponent({ pattern, onSubmit, show : setSelectedPat
     setYaml(jsYaml.dump(patternJson))
   }, [patternName])
 
+  useEffect(() => {    
+    const timer = setTimeout(() => {
+      const patternJson = jsYaml.load(yaml)
+      setDeployServiceConfig(patternJson?.services || {})
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, [yaml])
+
   function groupWlByVersion() {
     const mfw = meshWorkloads[selectedMeshType];
     return mfw ? groupWorkloadByVersion(mfw) : {};
@@ -174,7 +183,7 @@ function PatternConfiguratorComponent({ pattern, onSubmit, show : setSelectedPat
   }
 
   function resetSelectedPattern() {
-    return { show : false, pattern : null };
+    return { show: false, pattern: null };
   }
 
   /**
@@ -188,8 +197,8 @@ function PatternConfiguratorComponent({ pattern, onSubmit, show : setSelectedPat
         const name = mwl?.workload?.metadata?.["display.ui.meshery.io/name"];
         return {
           name,
-          icon : <NameToIcon name={name.split(".")[0]} color={getMeshProperties(selectedMeshType).color} />,
-          readableName : getHumanReadablePatternServiceName(mwl?.workload)
+          icon: <NameToIcon name={name.split(".")[0]} color={getMeshProperties(selectedMeshType).color} />,
+          readableName: getHumanReadablePatternServiceName(mwl?.workload)
         };
       });
     }
@@ -200,8 +209,8 @@ function PatternConfiguratorComponent({ pattern, onSubmit, show : setSelectedPat
         const name = item.workload?.oam_definition?.metadata?.name;
         return {
           name,
-          icon : <NameToIcon name={name.split(".")[0]} color={getMeshProperties(selectedMeshType).color} />,
-          readableName : getHumanReadablePatternServiceName(item?.workload)
+          icon: <NameToIcon name={name.split(".")[0]} color={getMeshProperties(selectedMeshType).color} />,
+          readableName: getHumanReadablePatternServiceName(item?.workload)
         };
       });
   }
@@ -209,17 +218,17 @@ function PatternConfiguratorComponent({ pattern, onSubmit, show : setSelectedPat
   const handleSubmit = (cfg, patternName) => {
     console.log("submitted", { cfg, patternName });
     const key = getPatternKey(cfg);
-    handleCodeEditorYamlChange({ ...deployServiceConfig, [key] : cfg?.services?.[key] });
-    if (key) setDeployServiceConfig({ ...deployServiceConfig, [key] : cfg?.services?.[key] });
+    handleCodeEditorYamlChange({ ...deployServiceConfig, [key]: cfg?.services?.[key] });
+    // if (key) setDeployServiceConfig({ ...deployServiceConfig, [key]: cfg?.services?.[key] });
   };
 
-  const handleSettingsChange = (schemaSet) => () => {
+  const handleSettingsChange = (schemaSet) => {
     const cfg = {
-      [(Math.random() + 1).toString(36).substring(2)] : {
-        settings : reference.current?.getSettings(),
-        traits : reference.current?.getTraits(),
-        type : schemaSet?.oam_definition?.metadata?.name || "NA",
-        name : "<Name-Of-Component>",
+      [(Math.random() + 1).toString(36).substring(2)]: {
+        settings: reference.current?.getSettings(),
+        traits: reference.current?.getTraits(),
+        type: schemaSet?.oam_definition?.metadata?.name || "NA",
+        name: "<Name-Of-Component>",
       }
     }
 
@@ -231,9 +240,9 @@ function PatternConfiguratorComponent({ pattern, onSubmit, show : setSelectedPat
   const handleChangeData = (cfg, patternName) => {
     console.log(patternName);
     const key = getPatternKey(cfg);
-    handleCodeEditorYamlChange({ ...deployServiceConfig, [getPatternKey(cfg)] : cfg?.services?.[key] });
-    if (key)
-      setDeployServiceConfig({ ...deployServiceConfig, [getPatternKey(cfg)] : cfg?.services?.[key] });
+    handleCodeEditorYamlChange({ ...deployServiceConfig, [key]: cfg?.services?.[key] });
+    // if (key)
+    //   setDeployServiceConfig({ ...deployServiceConfig, [getPatternKey(cfg)]: cfg?.services?.[key] });
   };
 
   const handleDelete = (cfg, patternName) => {
@@ -455,7 +464,7 @@ function PatternConfiguratorComponent({ pattern, onSubmit, show : setSelectedPat
                     schemaSet={activeForm}
                     jsonSchema={activeForm.workload}
                     formData={insertPattern(activeForm.workload)}
-                    onSettingsChange={handleSettingsChange(activeForm.workload)}
+                    onSettingsChange={()=>handleSettingsChange(activeForm.workload)}
                     onSubmit={(val) => handleSubmit(val, pattern.name)}
                     onDelete={(val) => handleDelete(val, pattern.name)}
                     namespace={ns}
@@ -472,11 +481,11 @@ function PatternConfiguratorComponent({ pattern, onSubmit, show : setSelectedPat
                     ?.filter((s) => s.type !== "addon")
                     .sort((a, b) => (getPatternServiceName(a.workload) < getPatternServiceName(b.workload) ? -1 : 1))
                     .map((s, i) => (
-                      <div style={{ marginBottom : "0.5rem" }} key={`svc-form-${i}`} >
+                      <div style={{ marginBottom: "0.5rem" }} key={`svc-form-${i}`} >
                         <LazyPatternServiceForm
                           schemaSet={s}
                           formData={insertPattern(s.workload)}
-                          onSettingsChange={handleSettingsChange(s.workload)}
+                          onSettingsChange={()=>handleSettingsChange(s.workload)}
                           onSubmit={(val) => handleSubmit(val, pattern.name)}
                           onDelete={(val) => handleDelete(val, pattern.name)}
                           namespace={ns}
@@ -488,11 +497,11 @@ function PatternConfiguratorComponent({ pattern, onSubmit, show : setSelectedPat
                   ?.filter((s) => s.type !== "addon")
                   .sort((a, b) => (getPatternServiceName(a.workload) < getPatternServiceName(b.workload) ? -1 : 1))
                   .map((s, i) => (
-                    <div style={{ marginBottom : "0.5rem" }} key={`svc-form-${i}`} >
+                    <div style={{ marginBottom: "0.5rem" }} key={`svc-form-${i}`} >
                       <LazyPatternServiceForm
                         schemaSet={s}
                         formData={insertPattern(s.workload)}
-                        onSettingsChange={handleSettingsChange(s.workload)}
+                        onSettingsChange={()=>handleSettingsChange(s.workload)}
                         onSubmit={(val) => handleSubmit(val, pattern.name)}
                         onDelete={(val) => handleDelete(val, pattern.name)}
                         namespace={ns}
@@ -504,13 +513,13 @@ function PatternConfiguratorComponent({ pattern, onSubmit, show : setSelectedPat
                   selectedVersionMesh && selectedVersionMesh?.[selectedVersion]
                     ?.filter((s) => s.type === "addon").length > 0 && (
                     <div className={classes.wrapper}>
-                      <Accordion elevation={0} style={{ width : '100%' }}>
+                      <Accordion elevation={0} style={{ width: '100%' }}>
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                           <Typography className={classes.heading}>
                             Configure Addons
                           </Typography>
                         </AccordionSummary>
-                        <AccordionDetails style={{ flexDirection : "column" }}>
+                        <AccordionDetails style={{ flexDirection: "column" }}>
                           {selectedVersionMesh && selectedVersionMesh?.[selectedVersion]
                             ?.filter((s) => s.type === "addon")
                             .sort((a, b) => (getPatternServiceName(a.workload) < getPatternServiceName(b.workload) ? -1 : 1))
@@ -519,7 +528,7 @@ function PatternConfiguratorComponent({ pattern, onSubmit, show : setSelectedPat
                                 <LazyPatternServiceForm
                                   key={`${i}xi`}
                                   formData={deployServiceConfig[s.workload?.title]}
-                                  onSettingsChange={handleSettingsChange(s.workload)}
+                                  onSettingsChange={()=>handleSettingsChange(s.workload)}
                                   schemaSet={s}
                                   onSubmit={handleSubmit}
                                   onDelete={handleDelete}

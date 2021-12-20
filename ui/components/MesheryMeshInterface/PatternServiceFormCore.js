@@ -18,7 +18,6 @@ import { scrollToTop } from "../../utils/utils";
  *  onTraitsChange?: Function;
  *  formData?: Record<String, unknown>
  *  reference?: Record<any, any>;
- * 	children?: Function;
  *  scroll?: Boolean; // If the window should be scrolled to zero after re-rendering
  * }} param0 props for the component
  */

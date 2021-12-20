@@ -9,6 +9,7 @@ import ArrayFieldTemplate from "./RJSFCustomComponents/ArrayFieldTemlate";
 import MemoizedCustomInputField from "./RJSFCustomComponents/CustomInputField";
 import CustomObjFieldTemplate from "./RJSFCustomComponents/ObjectFieldTemplate";
 import { isEqualArr } from "../../../utils/utils"
+import { Button } from '@material-ui/core';
 
 const Form = withTheme(MaterialUITheme);
 
@@ -110,6 +111,7 @@ function RJSF(props) {
     jsonSchema,
     onChange,
     hideTitle,
+    onSubmit,
     RJSFWrapperComponent = React.Fragment,
     RJSFFormChildComponent = React.Fragment, // eslint-disable-line no-unused-vars
     //.. temporarily ignoring till handler is attached successfully
@@ -147,6 +149,7 @@ function RJSF(props) {
           additionalMetaSchemas={[JS4]}
           uiSchema={uiSchema(jsonSchema)}
         >
+          <Button onClick={onSubmit}>Submit</Button>
           {/* {hideSubmit ? true : <RJSFButton handler={onSubmit} text="Submit" {...restparams} />}
         {hideSubmit ? true : <RJSFButton handler={onDelete} text="Delete" />} */}
           {/* <RJSFFormChildComponent /> */}
