@@ -42,7 +42,6 @@ jobs:
           # only-new-issues: true
   build-backend:
     name: Backend build
-    # if: github.repository == 'meshery/meshery'
     runs-on: ubuntu-latest
     steps:
     - name: Check out code
@@ -69,7 +68,6 @@ jobs:
         path: ./main
   build-ui:
     name: UI build
-    # if: github.repository == 'meshery/meshery'
     runs-on: ubuntu-latest
     steps:
     - name: Check out code
@@ -110,7 +108,6 @@ jobs:
   tests-ui:
     needs: [build-ui]
     name: UI integration tests
-    # if: github.repository == 'meshery/meshery'
     runs-on: ubuntu-latest
     steps:
     - name: Check out code
@@ -164,7 +161,6 @@ jobs:
   tests-ui-e2e:
     needs: [build-backend, build-ui]
     name: UI end-to-end tests
-    # if: github.repository == 'meshery/meshery'
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -251,7 +247,6 @@ jobs:
           fail_ci_if_error: true
   docker-build-test:
     name: Docker build
-    # if: github.repository == 'meshery/meshery'
     runs-on: ubuntu-latest
     steps:
     - name: Check out code
@@ -281,7 +276,6 @@ jobs:
 
   # validate the swagger docs
   swaggerci:
-    # if: github.repository == 'meshery/meshery'
     name: swagger-docs
     runs-on: ubuntu-latest
     steps:
@@ -308,7 +302,6 @@ jobs:
   # validate graphQL schema
   garphql_validate:
     name: Validate GraphQL schema
-    # if: github.repository == 'meshery/meshery'
     runs-on: ubuntu-latest
     steps:
     - name: Check out code
