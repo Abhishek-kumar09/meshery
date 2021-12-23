@@ -128,7 +128,7 @@ jobs:
           !~/cache/exclude
           **/node_modules
           /home/runner/.cache
-        key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+        key: ${{ runner.os }}-node-${{ hashFiles('**/lockfiles') }}
     - name: Install Cypress Binary
       run: |
       run: npm i cypress
@@ -139,7 +139,7 @@ jobs:
       with: 
         path: |
             /home/runner/.cache/Cypress
-        key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+        key: ${{ runner.os }}-node-${{ hashFiles('**/lockfiles') }}
     - name: Run tests
       run: |
         cd ui
@@ -195,7 +195,7 @@ jobs:
             !~/cache/exclude
             **/node_modules
             /home/runner/.cache/Cypress
-          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          key: ${{ runner.os }}-node-${{ hashFiles('**/lockfiles') }}
           restore-keys: |
             ${{ runner.os }}-node-
       - name: Create k8s Kind Cluster
