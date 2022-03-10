@@ -257,7 +257,7 @@ export function formatString(text){
  * @param {*} obj
  * @returns
  */
-function jsonSchemaBuilder(schema, obj) {
+function jsonSchemaBuilder(schema, obj, nestingLevel = 0) {
   if (!schema) return
 
   const uiDesc = "ui:description"
@@ -265,17 +265,20 @@ function jsonSchemaBuilder(schema, obj) {
   if (schema.type === 'object') {
     for (let key in schema.properties) {
       obj[key] = {};
-      jsonSchemaBuilder(schema.properties?.[key], obj[key]);
+      obj[key]["level"] = nestingLevel;
+      jsonSchemaBuilder(schema.properties?.[key], obj[key], nestingLevel + 1);
     }
     return
   }
 
   if (schema.type === 'array') {
     obj["items"] = {}
-    jsonSchemaBuilder(schema.items, obj["items"]);
+    obj["items"]["level"] = nestingLevel;
+    jsonSchemaBuilder(schema.items, obj["items"], nestingLevel + 1);
     return
   }
 
+  obj["level"] = nestingLevel;
   obj[uiDesc] = " ";
 
   if (schema.type === 'boolean') {

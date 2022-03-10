@@ -11,7 +11,7 @@ import ArrayFieldTemplate from "./RJSFCustomComponents/ArrayFieldTemlate";
 import MemoizedCustomInputField from "./RJSFCustomComponents/CustomInputField";
 import CustomObjFieldTemplate from "./RJSFCustomComponents/ObjectFieldTemplate";
 
-const Form = withTheme(MaterialUITheme);
+const RJSFForm = withTheme(MaterialUITheme);
 
 // function RJSFButton({ handler, text, ...restParams }) {
 //   return (
@@ -54,13 +54,14 @@ function RJSF(props) {
   React.useEffect(() => {
     const rjsfSchema = getRefinedJsonSchema(jsonSchema, hideTitle, errorHandler)
     const uiSchema = buildUiSchema(rjsfSchema)
+    console.log({ uiSchema })
     setSchema({ rjsfSchema, uiSchema })
   }, [jsonSchema]) // to reduce heavy lifting on every react render
 
   return (
     <RJSFWrapperComponent {...{ ...props, RJSFWrapperComponent : null, RJSFFormChildComponent : null }}>
       <MuiThemeProvider theme={rjsfTheme}>
-        <Form
+        <RJSFForm
           schema={schema.rjsfSchema}
           idPrefix={jsonSchema?.title}
           onChange={(e) => {
@@ -72,16 +73,15 @@ function RJSF(props) {
           ObjectFieldTemplate={CustomObjFieldTemplate}
           additionalMetaSchemas={[JS4]}
           uiSchema={schema.uiSchema}
-          liveValidate
           showErrorList={false}
+          liveValidate
           noHtml5Validate
-
         >
           {/* {hideSubmit ? true : <RJSFButton handler={onSubmit} text="Submit" {...restparams} />}
         {hideSubmit ? true : <RJSFButton handler={onDelete} text="Delete" />} */}
           {/* <RJSFFormChildComponent /> */}
           <></> {/* temporary change for functionality */}
-        </Form>
+        </RJSFForm>
       </MuiThemeProvider>
     </RJSFWrapperComponent>
   );

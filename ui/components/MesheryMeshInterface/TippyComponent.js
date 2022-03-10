@@ -1,4 +1,4 @@
-import { AppBar } from '@material-ui/core';
+import { AppBar, ClickAwayListener } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import Tippy from '@tippyjs/react';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
@@ -33,37 +33,37 @@ const TippyComponent = ({ title, children, content, style, ...otherProps }) => {
   // the propblem with onClick react is that it get executed once the
   // event listeners are acknowledged, which is not desired at all
   const ref = useRef(null);
-  const r2 = useRef(null)
+  const r2 = useRef(null);
 
   // The custome click-away listener that helps selectively
   // prevent the clickaway event from propagating to the
   // document body in certain criteria
-  useEffect(() => {
-    const clickAction = () => {
-      setOpen(false)
-    }
+  // useEffect(() => {
+  //   const clickAction = () => {
+  //     setOpen(false)
+  //   }
 
-    document.querySelector("body").addEventListener("click", clickAction)
+  //   document.querySelector("body").addEventListener("click", clickAction)
 
-    const tooltip = document.querySelector("#helloji .chhhh")?.parentElement;
-    console.log({ tooltip })
-    if (tooltip) {
-      tooltip.remove();
-      document.querySelector("body").append(tooltip);
-      tooltip.style.display = "block";
-    }
+  //   const tooltip = document.querySelector("#helloji .chhhh")?.parentElement;
+  //   console.log({ tooltip })
+  //   if (tooltip) {
+  //     tooltip.remove();
+  //     document.querySelector("body").append(tooltip);
+  //     tooltip.style.display = "block";
+  //   }
 
-    return () => document.querySelector("body").removeEventListener("click", clickAction)
-  }, []);
+  //   return () => document.querySelector("body").removeEventListener("click", clickAction)
+  // }, []);
 
   // stopping event propagation to the document body, for the clickaway event
-  useEffect(() => {
-    if (ref.current) {
-      ref.current.onclick = (e) => {
-        e.stopPropagation();
-      }
-    }
-  }, [ref.current])
+  // useEffect(() => {
+  //   if (ref.current) {
+  //     ref.current.onclick = (e) => {
+  //       e.stopPropagation();
+  //     }
+  //   }
+  // }, [ref.current])
 
   useEffect(() => {
     if (r2.current) {
@@ -87,50 +87,64 @@ const TippyComponent = ({ title, children, content, style, ...otherProps }) => {
     <div
       id="helloji"
     >
-      <Tippy
-        className='chhhh'
-        // popperOptions={}
-        // className={classes.s2}
-        ref={r2}
-        // id="chalo"
-        // key={title}
-        // // trigger='manual'
-        placement="right"
-        animation="scale-extreme"
-        inertia={true}
-        hideOnClick={true}
-        theme="light-border"
-        plugins={[sticky]}
-        content={(
-          <div
-            id="oh-yes"
-            style={!open ? {
-              display: "none"
-            } : {}}
-          >
-            <AppBar
-              className={classes.appBar}
-            >
-              <div style={{ lineHeight: "40px", paddingLeft: "16px" }}>
-                {title}
-              </div>
-            </AppBar>
-            {content}
-          </div>
-        )}
-        interactive={true}
-        // interactiveBorder={20}
-        delay={100}
-        visible={open}
+      <ClickAwayListener
+        onClickAway={(e) => {
+          if (ref.current && !ref.current.contains(e.target)) {
+            setOpen(false);
+          }
+        }
+        }
       >
-        <div
-          onClick={() => {
-            setOpen(true)
-          }}>
-          {children}
-        </div>
-      </Tippy>
-    </div>
+        <Tippy
+          className="chhhh"
+          // popperOptions={}
+          // className={classes.s2}
+          // id="chalo"
+          // key={title}
+          // // trigger='manual'
+          placement="right"
+          animation="scale-extreme"
+          inertia={true}
+          hideOnClick={true}
+          theme="light-border"
+          plugins={[sticky]}
+          content={(
+            <div
+              onClick={(e) => {
+                e.stopPropagation();
+                console.log("clicked appbar")
+              }}
+              ref={ref}
+              id="oh-yes"
+              style={!open ? {
+                display: "none"
+              } : {}}
+            >
+              <AppBar
+                className={classes.appBar}
+              >
+                <div style={{ lineHeight: "40px", paddingLeft: "16px" }}>
+                  {title}
+                </div>
+              </AppBar>
+              {content}
+            </div>
+          )}
+          interactive={true}
+          // interactiveBorder={20}
+          delay={100}
+          visible={open}
+        >
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              setOpen(true)
+            }}>
+            {children}
+          </div>
+        </Tippy>
+      </ClickAwayListener>
+    </div >
   )
 }
 
@@ -144,7 +158,7 @@ export function createTippy(ref) {
   // console.log("pooperref", popperref);
 
   // const tippy = Tpy(div, {
-  //   getReferenceClientRect: ref.current.getBoundingClientRect, 
+  //   getReferenceClientRect: ref.current.getBoundingClientRect,
   //   content: "Hello",
   // });
 
@@ -155,7 +169,7 @@ export function createTippy(ref) {
   document.querySelector("body").append(tooltip);
 
   // createPopper(btn, tooltip, { placement: 'right', });
-};
+}
 
 export function createTippy2() {
   const div = document.createElement("div");

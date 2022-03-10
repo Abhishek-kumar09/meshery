@@ -14,6 +14,8 @@ import CustomDescriptionField from "./DescriptionField";
 import EnlargedTextTooltip from "../EnlargedTextTooltip";
 import HelpOutlineIcon from "../HelpOutlineIcon";
 const { isMultiSelect, getDefaultRegistry } = utils;
+import { getObjectInfo } from "./ObjectFieldTemplate";
+import TippyComponent from "../../TippyComponent";
 
 const ArrayFieldTemplate = (props) => {
   const { schema, registry = getDefaultRegistry() } = props;
@@ -33,7 +35,7 @@ const ArrayFieldTitle = ({ TitleField, idSchema, title, required }) => {
 
   const id = `${idSchema.$id}__title`;
   // return <h3>{title?.charAt(0)?.toUpperCase() + title?.slice(1)}</h3>;
-  return <Typography variant="body1" style={{ fontWeight : "bold", display : "inline" }}>{title.charAt(0).toUpperCase() + title.slice(1)}</Typography>;
+  return <Typography variant="body1" style={{ border : "2px solid green", fontWeight : "bold", display : "inline" }}>{title.charAt(0).toUpperCase() + title.slice(1)}</Typography>;
   // return <TitleField id={id} title={title} required={required} />;
 };
 
@@ -102,6 +104,7 @@ const DefaultArrayItem = (props) => {
 const DefaultFixedArrayFieldTemplate = (props) => {
   return (
     <fieldset className={props.className}>
+      Default Array Field templates
       <ArrayFieldTitle
         key={`array-field-title-${props.idSchema.$id}`}
         TitleField={props.TitleField}
@@ -140,65 +143,76 @@ const DefaultFixedArrayFieldTemplate = (props) => {
 };
 
 const DefaultNormalArrayFieldTemplate = (props) => {
+  const { nestingLevel } = getObjectInfo(props.idSchema.$id);
+
+  const TitleComponent = (
+    <Grid item container alignItems="center" xs={12} justify="space-between" style={{ marginBottom : "0.3rem" }}>
+      <Grid item xs={4}>
+        <ArrayFieldTitle
+          key={`array-field-title-${props.idSchema.$id}`}
+          TitleField={props.TitleField}
+          idSchema={props.idSchema}
+          title={props.uiSchema["ui:title"] || props.title}
+          required={props.required}
+        />
+
+        {
+          (props.uiSchema["ui:description"] || props.schema.description) &&
+          <EnlargedTextTooltip title={props.uiSchema["ui:description"] || props.schema.description}>
+            <HelpOutlineIcon style={{ marginLeft : '4px' }} />
+          </EnlargedTextTooltip>
+        }
+
+      </Grid>
+      <Grid item xs={4}>
+        {props.canAdd && (
+          <Grid container justify="flex-end">
+            <Grid item={true}>
+              <Box mt={2}>
+                <IconButton
+                  className="array-item-add"
+                  onClick={props.onAddClick}
+                  disabled={props.disabled || props.readonly}
+                >
+                  <AddIcon />
+                </IconButton>
+              </Box>
+            </Grid>
+          </Grid>
+        )}
+      </Grid>
+    </Grid>
+  )
+
+  const BodyComponent = (
+    <Grid container={true} key={`array-item-list-${props.idSchema.$id}`}>
+      {props.items && props.items.map((p) => DefaultArrayItem(p))}
+    </Grid>
+  )
+
+  if (nestingLevel === 4) {
+    return (
+      <Paper elevation={0}>
+        <Box p={1}>
+          <TippyComponent
+            title={props.uiSchema["ui:title"] || props.title}
+            content={BodyComponent}
+            style={{ backgroundColor : '#f5f5f5' }}
+          >
+            {TitleComponent}
+          </TippyComponent>
+        </Box>
+      </Paper>
+    );
+  }
+
   return (
     <Paper elevation={0}>
       <Box p={1}>
-        <Grid item container alignItems="center" xs={12} justify="space-between" style={{ marginBottom : "0.3rem" }}>
-          <Grid item xs={4}>
-            <ArrayFieldTitle
-              key={`array-field-title-${props.idSchema.$id}`}
-              TitleField={props.TitleField}
-              idSchema={props.idSchema}
-              title={props.uiSchema["ui:title"] || props.title}
-              required={props.required}
-            />
-
-            {
-              (props.uiSchema["ui:description"] || props.schema.description) &&
-              <EnlargedTextTooltip title={props.uiSchema["ui:description"] || props.schema.description}>
-                <HelpOutlineIcon style={{ marginLeft : '4px' }} />
-              </EnlargedTextTooltip>
-            }
-
-          </Grid>
-          <Grid item xs={4}>
-            {props.canAdd && (
-              <Grid container justify="flex-end">
-                <Grid item={true}>
-                  <Box mt={2}>
-                    <IconButton
-                      className="array-item-add"
-                      onClick={props.onAddClick}
-                      disabled={props.disabled || props.readonly}
-                    >
-                      <AddIcon />
-                    </IconButton>
-                  </Box>
-                </Grid>
-              </Grid>
-            )}
-          </Grid>
-        </Grid>
-
-        {/* {(props.uiSchema["ui:description"] || props.schema.description) && (
-          <ArrayFieldDescription
-            key={`array-field-description-${props.idSchema.$id}`}
-            DescriptionField={CustomDescriptionField}
-            idSchema={props.idSchema}
-            description={
-              props.uiSchema["ui:description"] || props.schema.description
-            }
-          />
-        )} */}
-
-        <Grid container={true} key={`array-item-list-${props.idSchema.$id}`}>
-          {props.items && props.items.map((p) => DefaultArrayItem(p))}
-
-
-        </Grid>
+        {TitleComponent}{BodyComponent}
       </Box>
     </Paper>
-  );
+  )
 };
 
 export default ArrayFieldTemplate;
