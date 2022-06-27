@@ -139,12 +139,9 @@ module.exports = {
     "@material-ui/core/AccordionSummary" : require("@material-ui/core/AccordionSummary"),
     "@material-ui/core/AccordionDetails" : require("@material-ui/core/AccordionDetails"),
     "@material-ui/icons" : require("@material-ui/icons"),
-<<<<<<< Updated upstream
     "@material-ui/core/InputAdornment" : require("@material-ui/core/InputAdornment")
-=======
     "@material-ui/core/InputAdornment" : require("@material-ui/core/InputAdornment"),
     '@material-ui/icons/InsertChart' : require("@material-ui/icons/InsertChart"),
     '@material-ui/icons/TouchApp' : require('@material-ui/icons/TouchApp'),
->>>>>>> Stashed changes
   },
 };
