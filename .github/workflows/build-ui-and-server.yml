@@ -54,7 +54,7 @@ jobs:
   build-backend:
     name: Backend build
     runs-on: ubuntu-latest
-    steps:
+   steps:
       - name: Check out code
         uses: actions/checkout@master
         with:
@@ -72,7 +72,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
       - run: |
-          GOPROXY=https://proxy.golang.org,direct GOSUMDB=off GO111MODULE=on go build -tags draft ./cmd/main.go ./cmd/error.go
+          GOPROXY=https://proxy.golang.org,direct GOSUMDB=off GO111MODULE=on go build -tags draft ./server/cmd/main.go ./server/cmd/error.go
       - name: Upload artifacts
         uses: actions/upload-artifact@v3.0.0
         with:
